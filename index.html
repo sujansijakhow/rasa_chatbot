@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasa Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chat-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ccc;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .chat-input button {
+            padding: 15px;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            line-height: 1.4;
+        }
+
+        .bubble.user {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .bubble.bot {
+            background: #e5e5ea;
+            color: black;
+            border-bottom-left-radius: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-title">🤖 Sujan's Chatbot</div>
+    <span style="color: #8f8c8c;">Ask anything to Sujan's AI</span>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script src="config.js"></script>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const input = document.getElementById("messageInput");
+
+        const rasaUrl = RASA_URL;
+
+        function appendMessage(message, sender) {
+            const messageElement = document.createElement("div");
+            messageElement.className = `message ${sender}`;
+            const bubble = document.createElement("div");
+            bubble.className = `bubble ${sender}`;
+            bubble.textContent = message;
+            messageElement.appendChild(bubble);
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = input.value.trim();
+            if (!message) return;
+            appendMessage(message, "user");
+            input.value = "";
+
+            try {
+                const response = await fetch(rasaUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                if (data.length === 0) {
+                    appendMessage("I didn't understand that 😅", "bot");
+                } else {
+                    data.forEach(reply => {
+                        appendMessage(reply.text, "bot");
+                    });
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                appendMessage("Bot is offline 😢", "bot");
+            }
+        }
+
+        input.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+
+</html>
