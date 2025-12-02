@@ -109,16 +109,16 @@
         <div class="chat-box" id="chat-box"></div>
         <div class="chat-input">
             <input type="text" id="messageInput" placeholder="Type a message..." />
-            <button onclick="sendMessage()">Send</button>
+            <button type="submit" onclick="sendMessage()">Send</button>
         </div>
     </div>
-    <script src="config.js"></script>
+    <!-- <script src="config.js"></script> -->
 
     <script>
         const chatBox = document.getElementById("chat-box");
         const input = document.getElementById("messageInput");
 
-        const rasaUrl = RASA_URL;
+        const rasaUrl = "https://prepersuasive-miley-rabidly.ngrok-free.dev/webhooks/rest/webhook";
 
         function appendMessage(message, sender) {
             const messageElement = document.createElement("div");
